@@ -1,15 +1,12 @@
-import React from "react";
+import React, {useState} from "react";
 
-const StateDropdown = (props) => {
-  var value = "";
-
-  const onChangeDropdown = (event) => {
-    value = stateDropdown.value;
-  };
-
-  
+const StateDropdown = ({ options }) => {
+  const [selectedOption, setSelectedOption] = useState('');
   return (
-    <select id="stateDropdown" onChange="{this.onChangeDropdown}" value={this.value}>
+    <select
+      value={selectedOption}
+      onChange={(e) => setSelectedOption(e.target.value)}
+    >
       <option value="AL">Alabama</option>
       <option value="AK">Alaska</option>
       <option value="AZ">Arizona</option>
@@ -63,7 +60,6 @@ const StateDropdown = (props) => {
       <option value="WY">Wyoming</option>
     </select>
   );
-  
 };
 
 export default StateDropdown;
