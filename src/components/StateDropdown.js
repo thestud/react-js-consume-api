@@ -1,12 +1,23 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
-const StateDropdown = ({ options }) => {
-  const [selectedOption, setSelectedOption] = useState('');
+const StateDropdown = (props) => {
+  const [selectedOption, setSelectedOption] = useState("");
   return (
     <select
       value={selectedOption}
-      onChange={(e) => setSelectedOption(e.target.value)}
+      onChange={(e) => {
+		if(e.target.value !== 'CLEAR') {
+			setSelectedOption(e.target.value);
+		} else {
+			setSelectedOption(null);
+			// e.target.selectedIndex = -1.
+			// e.target.selected 
+		}
+		
+        props.filterState(e.target.value);
+      }}
     >
+      <option value="ALL">All</option>
       <option value="AL">Alabama</option>
       <option value="AK">Alaska</option>
       <option value="AZ">Arizona</option>

@@ -1,4 +1,6 @@
-export default Dropdown = ({ options }) => {
+import React, { useState } from "react";
+
+const Dropdown = ({ options }) => {
   const [selectedOption, setSelectedOption] = useState(options[0].value);
   return (
     <select
@@ -13,3 +15,5 @@ export default Dropdown = ({ options }) => {
     </select>
   );
 };
+
+export default Dropdown
