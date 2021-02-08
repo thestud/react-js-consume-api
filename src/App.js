@@ -7,6 +7,28 @@ function App() {
   const [apiList, setList] = useState([]);
   const [originalList, setOriginalList] = useState([]);
   const [genreList, setGenreList] = useState([]);
+  // const [pageNumber, setPageNumber] = useState(1);
+  const [pages, setPages] = useState(1);
+
+
+  // may not need this 
+  // const [paginationList, setPaginationList] = useState([]);
+
+  const setupPaginationList = (theList) => {
+  
+    let tempList = [...theList];
+    let possibleLastPage = 0;
+
+    if(tempList.length % 10 > 0 ) {
+      possibleLastPage = 1;
+    }
+
+    setPages((tempList.length - (tempList.length % 10))  / 10 + possibleLastPage); 
+
+    //setList(theList);
+    setPagnationData(1);
+  }
+  
 
   const filterState = (state) => {
     if (state !== "ALL") {
@@ -29,15 +51,31 @@ function App() {
   };
 
   const filterText = (event) => {
-    // console.log("this is the keyup event");
-    // console.log(event);
-
-    if (event.keyCode == 13) {
-      // match either the name,  city, or genree
-
-      setList(originalList.filter((item) => {}));
+    if (event.keyCode === 13) {
+      filterByOptions();
     }
   };
+
+  const filterTextByButton = (event) => {
+    filterByOptions();
+  }
+
+  const filterByOptions = () => {
+    // match either the name,  city, or genre
+    var textField = document.getElementById("filterTextField");
+    setList(
+      originalList.filter((item) => {
+        return (
+          item.name.toUpperCase().indexOf(textField.value.toUpperCase()) >
+            -1 ||
+          item.genre.toUpperCase().indexOf(textField.value.toUpperCase()) >
+            -1 ||
+          item.city.toUpperCase().indexOf(textField.value.toUpperCase()) >
+            -1
+        );
+      })
+    );
+  }
 
   const sortname = (a, b) => {
     var nameA = a.name.toUpperCase(); // ignore upper and lowercase
@@ -71,7 +109,6 @@ function App() {
       }
       return 0; // names must be equal
     });
-    // console.log(genres);
     return genres;
   };
 
@@ -89,9 +126,10 @@ function App() {
         .then((data) => {
           data = data.sort(sortname);
 
-          setList(data);
+          //setList(data);
           setOriginalList(data);
-          console.log(data);
+          // console.log(data);
+          setupPaginationList(data);
           setGenreList(getGenres(data));
         });
     };
@@ -99,11 +137,34 @@ function App() {
     fetchData();
   }, []);
 
+  const outPutButtons = () => {
+    let content = [];
+    for(let i = 0; i < pages; i++) {
+      content.push(<button type="button" key={"button" + i.toString()} onClick={setPagnationData.bind(this, i+1)}>Page {i+1}</button>);
+    }
+    return content;
+  };
+
+  const setPagnationData = (xyz) => {
+    let pageData = [];
+
+    let iStart = (xyz * 10 - 10);
+    let iEnd =  (xyz * 10 - 1);
+
+    for (let i= iStart; i <= iEnd; i++) {
+      if(i < apiList.length) pageData.push(apiList[i]);
+    }
+
+    setList(pageData);
+  };
+
   return (
     <div className="App">
       <label>search by text: </label>
-      <input type="text" id="search" name="search" onKeyUp={filterText}></input>
+      <input type="text" id="filterTextField" name="filterTextField" onKeyUp={filterText}></input>
+      <button type="button" onClick={filterTextByButton}>Filter</button>
       <table>
+        <tbody>
         <tr>
           <td></td>
           <td></td>
@@ -125,7 +186,10 @@ function App() {
             <td>{item.genre}</td>
           </tr>
         ))}
+        </tbody>
       </table>
+      { outPutButtons() }
+
     </div>
   );
 }
