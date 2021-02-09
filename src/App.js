@@ -2,19 +2,21 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import StateDropdown from "./components/StateDropdown.js";
 import GenreDropdown from "./components/GenreDropdown.js";
+import Button from 'react-bootstrap/Button';
+import Table from 'react-bootstrap/Table';
 
 function App() {
   const [apiList, setList] = useState([]);
   const [originalList, setOriginalList] = useState([]);
   const [genreList, setGenreList] = useState([]);
-  // const [pageNumber, setPageNumber] = useState(1);
   const [pages, setPages] = useState(1);
+  const [pageNumber,setPageNumber] = useState(1);
 
 
   // may not need this 
   // const [paginationList, setPaginationList] = useState([]);
 
-  const setupPaginationList = (theList) => {
+  const setPaginationList = (theList) => {
   
     let tempList = [...theList];
     let possibleLastPage = 0;
@@ -25,16 +27,16 @@ function App() {
 
     setPages((tempList.length - (tempList.length % 10))  / 10 + possibleLastPage); 
 
-    //setList(theList);
-    setPagnationData(1);
+    //setList(tempList);
+    setPagnationData(1,tempList);
   }
   
 
   const filterState = (state) => {
     if (state !== "ALL") {
-      setList(originalList.filter((item) => item.state === state));
+		setPagnationData(1,originalList.filter((item) => item.state === state));
     } else {
-      setList(originalList);
+		setPagnationData(1,originalList);
     }
   };
 
@@ -126,44 +128,65 @@ function App() {
         .then((data) => {
           data = data.sort(sortname);
 
-          //setList(data);
+          // setList(data);
           setOriginalList(data);
-          // console.log(data);
-          setupPaginationList(data);
+          console.log(data);
+          setPaginationList(data);
           setGenreList(getGenres(data));
         });
     };
 
     fetchData();
-  }, []);
+  },[]);
 
   const outPutButtons = () => {
     let content = [];
     for(let i = 0; i < pages; i++) {
-      content.push(<button type="button" key={"button" + i.toString()} onClick={setPagnationData.bind(this, i+1)}>Page {i+1}</button>);
+      let selected = "";
+	  if(pageNumber === i+1) {
+		selected = "*";
+	  }
+		content.push(<Button variant="primary" style={{"margin-left": 20}} type="button" key={"button" + i.toString()} onClick={setPagnationData.bind(this, i+1)}>{selected} Page {i+1}</Button>);
     }
     return content;
   };
 
-  const setPagnationData = (xyz) => {
-    let pageData = [];
+  const setPagnationData = (pnum,tempList) => {
+    setPageNumber(pnum);
+	
+	let pageData = [];
 
-    let iStart = (xyz * 10 - 10);
-    let iEnd =  (xyz * 10 - 1);
+    let iStart = (pnum * 10 - 10);
+    let iEnd =  (pnum * 10 - 1);
+	let usingList;
 
+	if(tempList.length != null) {
+		usingList = tempList; 
+	} else {
+		usingList = originalList;
+	}
+	
     for (let i= iStart; i <= iEnd; i++) {
-      if(i < apiList.length) pageData.push(apiList[i]);
+      if(i < usingList.length) pageData.push(usingList[i]);
     }
 
     setList(pageData);
   };
 
+  const outputNoData = () => {
+	  if(apiList.length === 0) {
+		  return <h1>Filters aren't returning anything</h1>;
+	  }
+  }
+
   return (
     <div className="App">
       <label>search by text: </label>
       <input type="text" id="filterTextField" name="filterTextField" onKeyUp={filterText}></input>
+
+	  
       <button type="button" onClick={filterTextByButton}>Filter</button>
-      <table>
+      <Table striped bordered hover>
         <tbody>
         <tr>
           <td></td>
@@ -187,8 +210,12 @@ function App() {
           </tr>
         ))}
         </tbody>
-      </table>
-      { outPutButtons() }
+      </Table>
+	  { outputNoData() }
+
+	  <div className="navButtons" >
+      	{ outPutButtons() }
+	  </div>
 
     </div>
   );
