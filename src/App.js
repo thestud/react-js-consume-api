@@ -13,9 +13,6 @@ function App() {
   const [pageNumber,setPageNumber] = useState(1);
 
 
-  // may not need this 
-  // const [paginationList, setPaginationList] = useState([]);
-
   const setPaginationList = (theList) => {
   
     let tempList = [...theList];
@@ -127,8 +124,6 @@ function App() {
         .then((data) => data.json())
         .then((data) => {
           data = data.sort(sortname);
-
-          // setList(data);
           setOriginalList(data);
           console.log(data);
           setPaginationList(data);
